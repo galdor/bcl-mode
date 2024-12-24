@@ -51,18 +51,19 @@
 (defun bcl-mode--indent-line ()
   "Indent the current line."
   (interactive)
-  (beginning-of-line)
-  (indent-line-to
-   (let ((block-indent (bcl-mode--block-indent)))
-     (if (null block-indent)
-         0
-       (let ((start (point)))
-         (end-of-line)
-         ;; The line containing the closing curly bracket is indented the same
-         ;; way as the line containing the opening curly bracket.
-         (if (looking-back "}[[:space:]]*" start)
-             block-indent
-           (+ block-indent bcl-indent-width)))))))
+  (save-excursion
+    (indent-line-to
+     (beginning-of-line)
+     (let ((block-indent (bcl-mode--block-indent)))
+       (if (null block-indent)
+           0
+         (let ((start (point)))
+           (end-of-line)
+           ;; The line containing the closing curly bracket is indented the same
+           ;; way as the line containing the opening curly bracket.
+           (if (looking-back "}[[:space:]]*" start)
+               block-indent
+             (+ block-indent bcl-indent-width))))))))
 
 (defun bcl-mode--block-indent ()
   "Return the indentation of the current block or NIL if the current
