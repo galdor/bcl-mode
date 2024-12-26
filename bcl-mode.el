@@ -123,7 +123,7 @@ line is not in a block (i.e. if it is top-level)."
   (setq-local comment-auto-fill-only-comments t)
 
   ;; Indentation
-  (setq-default tab-width bcl-indent-width)
+  (setq-local tab-width bcl-indent-width)
 
   (setq-local indent-line-function 'bcl-mode--indent-line)
 
