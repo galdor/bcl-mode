@@ -72,50 +72,48 @@ symbols (booleans and null).")
 (defun bcl-mode--indent-line ()
   "Indent the current line."
   (interactive)
-  (save-excursion
-    (indent-line-to
-     (beginning-of-line)
-     (let ((block-indent (bcl-mode--block-indent)))
-       (if (null block-indent)
-           0
-         (let ((start (point)))
-           (end-of-line)
-           ;; The line containing the closing curly bracket is indented the same
-           ;; way as the line containing the opening curly bracket.
-           (if (looking-back "}[[:space:]]*" start)
-               block-indent
-             (+ block-indent bcl-indent-width))))))))
+  (indent-line-to
+   (let ((block-indent (bcl-mode--block-indent)))
+     (if (null block-indent)
+         0
+       (let ((start (save-excursion
+                      (beginning-of-line)
+                      (point))))
+         (end-of-line)
+         ;; The line containing the closing curly bracket is indented the same
+         ;; way as the line containing the opening curly bracket.
+         (if (looking-back "}[[:space:]]*" start)
+             block-indent
+           (+ block-indent bcl-indent-width)))))))
 
 (defun bcl-mode--block-indent ()
   "Return the indentation of the current block or NIL if the current
 line is not in a block (i.e. if it is top-level)."
   (save-excursion
-    (save-match-data
-      (beginning-of-line)
-      (cl-do ((last-opening-bracket nil)
-              (n -1)
-              (done nil))
-          ()
-        (let ((bracket (search-backward-regexp "[{}][[:space:]]*$" nil t)))
-          (cond
-           ((null bracket)
-            (cl-return nil))
-           ((bcl-mode--comment-line-p)
-            ;; Move to the end of the previous line to continue looking up at
-            ;; the next iteration.
-            (end-of-line 0))
-           ((eq (char-after) ?{)
-            (when (zerop (cl-incf n))
-              (cl-return (bcl-mode--line-indent))))
-           ((eq (char-after) ?})
-            (cl-decf n))))))))
+    (beginning-of-line)
+    (cl-do ((last-opening-bracket nil)
+            (n -1)
+            (done nil))
+        ()
+      (let ((bracket (search-backward-regexp "[{}][[:space:]]*$" nil t)))
+        (cond
+         ((null bracket)
+          (cl-return nil))
+         ((bcl-mode--comment-line-p)
+          ;; Move to the end of the previous line to continue looking up at
+          ;; the next iteration.
+          (end-of-line 0))
+         ((eq (char-after) ?{)
+          (when (zerop (cl-incf n))
+            (cl-return (bcl-mode--line-indent))))
+         ((eq (char-after) ?})
+          (cl-decf n)))))))
 
 (defun bcl-mode--line-indent ()
   "Return the indentation of the current line."
   (save-excursion
     (beginning-of-line)
-    (save-match-data
-      (skip-chars-forward "[:space:]"))
+    (skip-chars-forward "[:space:]")
     ;; If the current position is also the end of the line, it means the line is
     ;; made only of whitespace characters, in which case indentation is actually
     ;; zero.
