@@ -31,6 +31,14 @@
   :type 'natnum
   :group 'bcl)
 
+(defvar bcl-string-sigil-face 'bcl-string-sigil-face
+  "The name of the font to use for string sigils.")
+
+(defface bcl-string-sigil-face
+  '((t :inherit font-lock-string-face))
+  "The face used for string sigils."
+  :group 'bcl)
+
 (defvar bcl-mode--syntax-table
   (let ((table (make-syntax-table)))
     ;; Name and symbol constituents
@@ -49,25 +57,10 @@
   "Syntax table for `bcl-mode'.")
 
 (defvar bcl-mode--font-lock-keywords
-  '(bcl-mode--font-lock-keywords-0
-    bcl-mode--font-lock-keywords-1
-    bcl-mode--font-lock-keywords-2)
+  '(("\\_<true\\|false\\|null\\_>" . font-lock-constant-face)
+    ("\\(~[a-z0-9]+\\)\"" 1 bcl-string-sigil-face)
+    ("^[[:space:]]*\\([a-z][a-z0-9_]*\\)" 1 font-lock-keyword-face))
   "Font Lock keywords.")
-
-(defvar bcl-mode--font-lock-keywords-0
-  nil
-  "Level 0 Font Lock keywords. Does not fontify anything beyond the
-default provided by Font Lock (comments and strings).")
-
-(defvar bcl-mode--font-lock-keywords-1
-  (append '(("\\_<true\\|false\\|null\\_>" . font-lock-constant-face)))
-  "Level 1 Font Lock keywords. Fontifies pre-defined
-symbols (booleans and null).")
-
-(defvar bcl-mode--font-lock-keywords-2
-  (append bcl-mode--font-lock-keywords-1
-          '(("^[[:space:]]*\\([a-z][a-z0-9_]*\\)" 1 font-lock-keyword-face)))
-  "Level 2 Font Lock keywords. Fontifies block types and entry names.")
 
 (defun bcl-mode--indent-line ()
   "Indent the current line."
